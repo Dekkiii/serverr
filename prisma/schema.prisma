@@ -4,12 +4,14 @@
 generator client {
   provider = "prisma-client-js"
   engineType = "binary"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
   provider = "mongodb"
   url      = "mongodb+srv://mbaberbano:dekki@cluster0.fhqwvoa.mongodb.net/Capstone"  
 }
+
 
 
 model User {
