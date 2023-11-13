@@ -44,6 +44,7 @@ model Exercises {
    id             String   @id @default(auto()) @map("_id") @db.ObjectId 
   exercise      String
   image           String
+  sensoravailable Boolean
 }
 
 model Exerciseinformation {
