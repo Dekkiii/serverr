@@ -156,7 +156,7 @@ app.get('/recipes', async (req, res) => {
 
 app.get('/nutrition', async (req, res) => {
   try {
-    const nutritions = await prisma.nutritions.findMany(); 
+    const nutritions = await prisma.nutrition.findMany(); 
 
    return res.status(200).send({ nutritions });
   } catch (error) {
