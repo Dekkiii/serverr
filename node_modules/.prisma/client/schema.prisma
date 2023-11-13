@@ -52,6 +52,8 @@ model Exerciseinformation {
   exercise      String
   videolink     String
   description   String
+  steps   String
+  muscle   String
 }
 
 model Nutrition {
