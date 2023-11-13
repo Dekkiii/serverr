@@ -53,3 +53,11 @@ model Exerciseinformation {
   videolink     String
   description   String
 }
+
+model Nutrition {
+   id             String   @id @default(auto()) @map("_id") @db.ObjectId 
+  calories      String
+  protien     String
+  fat   String
+  cholesterol   String
+}

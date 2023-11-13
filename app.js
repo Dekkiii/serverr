@@ -154,6 +154,17 @@ app.get('/recipes', async (req, res) => {
   }
 });
 
+app.get('/nutrition', async (req, res) => {
+  try {
+    const nutritions = await prisma.nutritions.findMany(); 
+
+   return res.status(200).send({ nutritions });
+  } catch (error) {
+    console.error('Error fetching nutrition:', error);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
+
 app.get('/exerciseinformation', async (req, res) => {
   try {
     const exerciseinformations = await prisma.exerciseinformation.findMany(); 
