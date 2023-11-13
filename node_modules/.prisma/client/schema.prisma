@@ -56,9 +56,9 @@ model Exerciseinformation {
 
 model Nutrition {
    id             String   @id @default(auto()) @map("_id") @db.ObjectId 
-  calories      String
+  Calories      String
   Carbohydrates String 
-  protien     String
-  fat   String
-  cholesterol   String
+  Protien     String
+  Fat   String
+  Cholesterol   String
 }
