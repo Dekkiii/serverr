@@ -66,13 +66,6 @@ model Nutrition {
   cholesterol   String
 }
 
-
-model Exerciseinformation {
-   id             String   @id @default(auto()) @map("_id") @db.ObjectId 
-  exercise      String
-  videolink     String
-  description   String
-}
 model Profile {
    id             String   @id @default(auto()) @map("_id") @db.ObjectId 
   height      String
