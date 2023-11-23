@@ -65,3 +65,9 @@ model Nutrition {
   fat   String
   cholesterol   String
 }
+
+model Profile {
+   id             String   @id @default(auto()) @map("_id") @db.ObjectId 
+  height      String
+  weight     String
+}
