@@ -114,6 +114,38 @@ app.use(function(err, req, res, next) {
   return encryptedMessage;
 }
 
+post('/save-profile-bmi', async (req, res) => {
+  try {
+    const { userId, height, weight, age, goal } = req.body;
+
+    // Save Profile information
+
+    // Save Bmi information
+    const savedBmi = await prisma.bmi.upsert({
+      where: { id },
+      update: { height, weight, age },
+      create: { id, height, weight, age },
+    });
+
+    // Assuming Weightgoal is a separate model
+    const savedWeightGoal = await prisma.weightgoal.upsert({
+      where: { id },
+      update: { goal },
+      create: { id, goal },
+    });
+
+    res.status(200).json({
+      message: 'Profile and BMI information saved successfully',
+      savedProfile,
+      savedBmi,
+      savedWeightGoal,
+    });
+  } catch (error) {
+    console.error('Error saving profile and BMI information:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/recipeinformation', async(req, res)=> {
   try{
     const {recipeId} = req.body;
@@ -266,6 +298,96 @@ app.get('/exercises', async (req, res) => {
     }
   });
 
+  app.post('/bmiposting', [
+    check('age').isNumeric().withMessage('Age must be a number'),
+    check('weight').isNumeric().withMessage('Weight must be a number'),
+    check('height').isNumeric().withMessage('Height must be a number'),
+    check('bmi').isNumeric().withMessage('BMI must be a number'),
+    check('goal').isLength({ min: 1 }).withMessage('Goal is required'),
+  ], async (req, res) => {
+    const { age, weight, height, bmi, goal, userId } = req.body;
+  
+    try {
+      console.log('Received data:', { age, weight, height, bmi, goal, userId }); // Log received data
+  
+      const errors = validationResult(req);
+  
+      if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg);
+        return res.status(400).send({ success: false, message: errorMessages });
+      }
+  
+      const existingProfile = await prisma.profile.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+  
+      if (existingProfile) {
+        // Profile with the given userId already exists; update it
+        await prisma.profile.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            age,
+            height,
+            weight,
+            bmi,
+            goal,
+          },
+        });
+  
+        return res.status(200).send({ success: true, message: 'Information Updated' });
+      } else {
+        // Profile with the given userId does not exist; create a new one
+        await prisma.profile.create({
+          data: {
+            id: userId,
+            age,
+            height,
+            weight,
+            bmi,
+            goal,
+          },
+        });
+  
+        return res.status(200).send({ success: true, message: 'Information Saved' });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Something went wrong.' });
+    }
+  });
+
+  
+app.get('/getProfile', async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      console.log('Received data:', { userId });
+      return res.status(400).send({ error: 'userId parameter is missing' });
+    }
+
+    const profileinfo = await prisma.profile.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!profileinfo) {
+      return res.status(404).send({ success: false, error: 'Profile not found' });
+    }
+
+    console.log(profileinfo, userId);
+
+    return res.status(200).send({ success: true, profileinfo });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
   app.post('/registering', [
     check('firstname').isLength({ min: 1 }).withMessage('First name is required'),
     check('lastname').isLength({ min: 1 }).withMessage('Last name is required'),

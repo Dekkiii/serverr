@@ -66,20 +66,12 @@ model Nutrition {
   cholesterol   String
 }
 
+
 model Profile {
    id             String   @id @default(auto()) @map("_id") @db.ObjectId 
-  height      String
-  weight     String
-}
-
-model Bmi {
-   id             String   @id @default(auto()) @map("_id") @db.ObjectId 
-  height      String
-  weight     String
-  age        String
-}
-
-model Weightgoal {
-   id             String   @id @default(auto()) @map("_id") @db.ObjectId 
+  height      Int
+  weight     Int
+  age        Int
+  bmi        Float
   goal           String
 }
