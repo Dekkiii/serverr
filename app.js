@@ -114,38 +114,6 @@ app.use(function(err, req, res, next) {
   return encryptedMessage;
 }
 
-post('/save-profile-bmi', async (req, res) => {
-  try {
-    const { userId, height, weight, age, goal } = req.body;
-
-    // Save Profile information
-
-    // Save Bmi information
-    const savedBmi = await prisma.bmi.upsert({
-      where: { id },
-      update: { height, weight, age },
-      create: { id, height, weight, age },
-    });
-
-    // Assuming Weightgoal is a separate model
-    const savedWeightGoal = await prisma.weightgoal.upsert({
-      where: { id },
-      update: { goal },
-      create: { id, goal },
-    });
-
-    res.status(200).json({
-      message: 'Profile and BMI information saved successfully',
-      savedProfile,
-      savedBmi,
-      savedWeightGoal,
-    });
-  } catch (error) {
-    console.error('Error saving profile and BMI information:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 app.get('/recipeinformation', async(req, res)=> {
   try{
     const {recipeId} = req.body;
