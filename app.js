@@ -113,6 +113,16 @@ app.use(function(err, req, res, next) {
   }
   return encryptedMessage;
 }
+app.get('/recipeinfo', async (req, res) => {
+  try {
+    const recipesinfo = await prisma.nutrition.findMany(); 
+
+   return res.status(200).send({ recipesinfo });
+  } catch (error) {
+    console.error('Error fetching recipes:', error);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
 
 app.get('/recipeinformation', async(req, res)=> {
   try{
@@ -266,67 +276,74 @@ app.get('/exercises', async (req, res) => {
     }
   });
 
-  app.post('/bmiposting', [
-    check('age').isNumeric().withMessage('Age must be a number'),
-    check('weight').isNumeric().withMessage('Weight must be a number'),
-    check('height').isNumeric().withMessage('Height must be a number'),
-    check('bmi').isNumeric().withMessage('BMI must be a number'),
-    check('goal').isLength({ min: 1 }).withMessage('Goal is required'),
-  ], async (req, res) => {
-    const { age, weight, height, bmi, goal, userId } = req.body;
-  
-    try {
-      console.log('Received data:', { age, weight, height, bmi, goal, userId }); // Log received data
-  
-      const errors = validationResult(req);
-  
-      if (!errors.isEmpty()) {
-        const errorMessages = errors.array().map(error => error.msg);
-        return res.status(400).send({ success: false, message: errorMessages });
-      }
-  
-      const existingProfile = await prisma.profile.findUnique({
+app.post('/bmiposting', [
+  check('age').isNumeric().withMessage('Age must be a number'),
+  check('weight').isNumeric().withMessage('Weight must be a number'),
+  check('height').isNumeric().withMessage('Height must be a number'),
+  check('bmi').isNumeric().withMessage('BMI must be a number'),
+  check('goal').isLength({ min: 1 }).withMessage('Goal is required'),
+], async (req, res) => {
+         // Include total calories
+        const { age, weight, height, bmi, goal, userId, gender,activityLevel, calories} = req.body;
+
+  try {
+    console.log('Received data:', { age, weight, height, bmi, goal, userId, gender,activityLevel, calories }); // Log received data
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const errorMessages = errors.array().map(error => error.msg);
+      return res.status(400).send({ success: false, message: errorMessages });
+    }
+
+    const existingProfile = await prisma.profile.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (existingProfile) {
+      // Profile with the given userId already exists; update it
+      await prisma.profile.update({
         where: {
           id: userId,
         },
+        data: {
+          age,
+          height,
+          weight,
+          bmi,
+          goal,
+         gender,
+         activityLevel, 
+         calories
+        },
       });
-  
-      if (existingProfile) {
-        // Profile with the given userId already exists; update it
-        await prisma.profile.update({
-          where: {
-            id: userId,
-          },
-          data: {
-            age,
-            height,
-            weight,
-            bmi,
-            goal,
-          },
-        });
-  
-        return res.status(200).send({ success: true, message: 'Information Updated' });
-      } else {
-        // Profile with the given userId does not exist; create a new one
-        await prisma.profile.create({
-          data: {
-            id: userId,
-            age,
-            height,
-            weight,
-            bmi,
-            goal,
-          },
-        });
-  
-        return res.status(200).send({ success: true, message: 'Information Saved' });
-      }
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ success: false, message: 'Something went wrong.' });
+      
+      return res.status(200).send({ success: true, message: 'Information Updated' });
+    } else {
+      // Profile with the given userId does not exist; create a new one
+      await prisma.profile.create({
+        data: {
+          id: userId,
+          age,
+          height,
+          weight,
+          bmi,
+          goal,
+          gender,
+         activityLevel, 
+         calories
+        },
+      });
+
+      return res.status(200).send({ success: true, message: 'Information Saved' });
     }
-  });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
 
   
 app.get('/getProfile', async (req, res) => {
