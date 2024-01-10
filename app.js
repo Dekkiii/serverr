@@ -365,12 +365,19 @@ app.get('/getProfile', async (req, res) => {
       return res.status(404).send({ success: false, error: 'Profile not found' });
     }
 
-    console.log(profileinfo, userId);
+    console.log('Profile found:', profileinfo, userId);
 
     return res.status(200).send({ success: true, profileinfo });
   } catch (error) {
     console.error('Error fetching profile:', error);
-    res.status(500).send({ error: 'Internal server error' });
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // Prisma error, return a more informative response
+      return res.status(500).send({ error: 'Prisma database error', details: error.message });
+    }
+
+    // Other errors
+    return res.status(500).send({ error: 'Internal server error' });
   }
 });
   app.post('/registering', [
