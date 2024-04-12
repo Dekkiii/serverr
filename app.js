@@ -352,32 +352,27 @@ app.get('/getProfile', async (req, res) => {
 
     if (!userId) {
       console.log('Received data:', { userId });
-      return res.status(400).send({ error: 'userId parameter is missing' });
+      return res.status(400).json({ error: 'userId parameter is missing' });
     }
 
-    const profileinfo = await prisma.profile.findUnique({
+    const profileInfo = await prisma.profile.findUnique({
       where: {
         id: userId,
       },
     });
 
-    if (!profileinfo) {
-      return res.status(404).send({ success: false, error: 'Profile not found' });
+    if (!profileInfo) {
+      console.log('Profile not found for userId:', userId);
+      return res.status(404).json({ success: false, error: 'Profile not found' });
     }
 
-    console.log('Profile found:', profileinfo, userId);
+    console.log('Profile information sent:', profileInfo);
+    // Modify your /getProfile endpoint
+      return res.status(200).json({ profile: profileInfo });
 
-    return res.status(200).send({ success: true, profileinfo });
   } catch (error) {
     console.error('Error fetching profile:', error);
-
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      // Prisma error, return a more informative response
-      return res.status(500).send({ error: 'Prisma database error', details: error.message });
-    }
-
-    // Other errors
-    return res.status(500).send({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
   app.post('/registering', [
