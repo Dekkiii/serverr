@@ -345,8 +345,41 @@ app.post('/bmiposting', [
   }
 });
 
-  
 app.get('/getProfile', async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      console.log('Received data:', { userId });
+      return res.status(400).send({ error: 'userId parameter is missing' });
+    }
+
+    const profileinfo = await prisma.profile.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!profileinfo) {
+      return res.status(404).send({ success: false, error: 'Profile not found' });
+    }
+
+    console.log('Profile found:', profileinfo, userId);
+
+    return res.status(200).send({ success: true, profileinfo });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // Prisma error, return a more informative response
+      return res.status(500).send({ error: 'Prisma database error', details: error.message });
+    }
+
+    // Other errors
+    return res.status(500).send({ error: 'Internal server error' });
+  }
+});
+app.get('/getProfile1', async (req, res) => {
   try {
     const { userId } = req.query;
 
